@@ -1,0 +1,26 @@
+GIT_REPO="$HOME/gitgud.org.git"
+TMP_GIT_CLONE="$HOME/tmp_gitgud.org"
+PUBLIC_WWW="/usr/share/nginx/html"
+
+unset GIT_DIR
+
+if [ ! -d "$TMP_GIT_CLONE" ]; then
+    git clone $GIT_REPO "$TMP_GIT_CLONE"
+    cd "$TMP_GIT_CLONE"
+else
+    cd "$TMP_GIT_CLONE"
+
+    # avoid breaking the build when force pushing
+    git fetch --all
+    git reset --hard origin/master
+
+    git pull
+fi
+
+# make sure that everything's installed
+bundle install --deployment
+
+# kick off the build
+bundle exec jekyll build -s "$TMP_GIT_CLONE" -d "$PUBLIC_WWW"
+
+exit
